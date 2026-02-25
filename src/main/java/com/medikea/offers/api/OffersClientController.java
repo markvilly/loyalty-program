@@ -1,6 +1,5 @@
 package com.medikea.offers.api;
 
-import java.math.BigDecimal;
 import com.medikea.offers.dto.*;
 import com.medikea.offers.service.OfferEngineService;
 

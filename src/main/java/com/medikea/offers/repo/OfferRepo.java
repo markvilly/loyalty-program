@@ -10,3 +10,5 @@ import java.util.Optional;
 public interface OfferRepo extends JpaRepository<Offer, Long> {
     Optional<Offer> findByCodeIgnoreCase(String code);
 }
+
+
