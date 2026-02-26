@@ -46,6 +46,15 @@ public class OfferEngineService {
 
         Offer offer = optionalOffer.get();
 
+        if(!isWithinActiveWindow(offer)){
+            return new OfferValidateResponse(
+                false,
+                "Coupon is not active (outside valid date range)",
+                BigDecimal.ZERO,
+                req.getOriginalAmount()
+            );
+        }
+
         // Make sure it's a COUPON type.
         if(offer.getOfferClass() != OfferClass.COUPON){
             return new OfferValidateResponse(
@@ -54,17 +63,26 @@ public class OfferEngineService {
                 BigDecimal.ZERO,
                 req.getOriginalAmount()
             );
-
-            
         }
         
+
         BigDecimal discount = calculateDiscount(offer, req.getOriginalAmount());
-        BigDecimal newTotal = req.getOriginalAmount();
+        BigDecimal newTotal = req.getOriginalAmount().subtract(discount).max(BigDecimal.ZERO);
 
-        System.out.println("Offer value: " + offer.getValue());
-System.out.println("Offer type: " + offer.getOfferType());
-
+        
         return new OfferValidateResponse(true, "Coupon applied successfully", discount, newTotal);
+    }
+
+    private boolean isWithinActiveWindow(Offer offer) {
+        var now = java.time.LocalDateTime.now();
+
+        var start = offer.getStartDate();
+        if(start != null && now.isBefore(start)) return false;
+        
+        var end = offer.getEndDate();
+        if(end != null && now.isAfter(end)) return false;
+        
+        return true;
     }
 
     public BigDecimal calculateDiscount(Offer offer, BigDecimal amount) {
