@@ -9,7 +9,7 @@ import com.medikea.offers.domain.OfferType;
 import com.medikea.offers.repo.OfferRepo;
 
 import java.math.BigDecimal;
-import java.time.*;
+
 
 @Component
 public class OffersSeeder implements CommandLineRunner {
@@ -39,7 +39,8 @@ public class OffersSeeder implements CommandLineRunner {
         coupon.setOfferType(OfferType.PERCENTAGE);
         coupon.setValue(new BigDecimal("20.00"));
         coupon.setActive(true);
-        coupon.setEndDate(java.time.LocalDateTime.now().minusDays(1));
+        coupon.setEndDate(java.time.LocalDateTime.now().plusDays(30));
+        coupon.setLimit(1);
 
         offerRepo.save(coupon);
 
@@ -47,7 +48,7 @@ public class OffersSeeder implements CommandLineRunner {
         } catch (Exception e){
             System.out.println("Seeder skipped (DB not ready yet): " + e.getMessage());
         }
-        
+
 
     }
     

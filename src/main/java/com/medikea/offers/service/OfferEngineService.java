@@ -3,9 +3,12 @@ package com.medikea.offers.service;
 import com.medikea.offers.domain.Offer;
 import com.medikea.offers.domain.OfferClass;
 import com.medikea.offers.domain.OfferType;
+import com.medikea.offers.domain.OfferUsage;
 import com.medikea.offers.dto.OfferValidateRequest;
 import com.medikea.offers.dto.OfferValidateResponse;
 import com.medikea.offers.repo.OfferRepo;
+import com.medikea.offers.repo.OfferUsageRepo;
+
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -17,9 +20,11 @@ import java.math.BigDecimal;
 public class OfferEngineService {
 
     private final OfferRepo offerRepo;
+    private final OfferUsageRepo offerUsageRepo;
 
-    public OfferEngineService(OfferRepo offerRepo){
+    public OfferEngineService(OfferRepo offerRepo, OfferUsageRepo offerUsageRepo){
         this.offerRepo = offerRepo;
+        this.offerUsageRepo = offerUsageRepo;
     }
 
     public OfferValidateResponse preview(OfferValidateRequest req) {
@@ -46,6 +51,7 @@ public class OfferEngineService {
 
         Offer offer = optionalOffer.get();
 
+        // Enforce Date validation
         if(!isWithinActiveWindow(offer)){
             return new OfferValidateResponse(
                 false,
@@ -54,6 +60,20 @@ public class OfferEngineService {
                 req.getOriginalAmount()
             );
         }
+
+        //Enforce Limit
+       if(offer.getLimit() != null){
+        long usageCount = offerUsageRepo.countByOfferIdAndUserId(offer.getId(), req.getUserId());
+
+        if(usageCount >= offer.getLimit()){
+            return new OfferValidateResponse(
+                false,
+                "Coupon limit reached",
+                BigDecimal.ZERO,
+                req.getOriginalAmount()
+            );
+        }
+       }
 
         // Make sure it's a COUPON type.
         if(offer.getOfferClass() != OfferClass.COUPON){
@@ -69,7 +89,17 @@ public class OfferEngineService {
         BigDecimal discount = calculateDiscount(offer, req.getOriginalAmount());
         BigDecimal newTotal = req.getOriginalAmount().subtract(discount).max(BigDecimal.ZERO);
 
-        
+        offerUsageRepo.save(OfferUsage.builder()
+        .offer(offer)
+        .userId(req.getUserId())
+        .discountApplied(discount)
+        .serviceType(req.getServiceType())
+        .usedAt(java.time.LocalDateTime.now())
+        .build()
+    
+    );
+
+
         return new OfferValidateResponse(true, "Coupon applied successfully", discount, newTotal);
     }
 

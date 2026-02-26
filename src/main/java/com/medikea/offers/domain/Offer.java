@@ -26,6 +26,15 @@ public class Offer {
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private Integer limitPerUsage;
+
+    public Integer getLimit() {
+        return limitPerUsage;
+    }
+
+    public void setLimit(Integer limitPerUsage) {
+        this.limitPerUsage = limitPerUsage;
+    }
 
     @Column(nullable = false)
     private boolean active = true;
