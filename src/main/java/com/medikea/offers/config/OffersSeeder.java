@@ -1,7 +1,5 @@
 package com.medikea.offers.config;
 
-
-
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -23,9 +21,17 @@ public class OffersSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args){
-        if (offerRepo.count() > 0) return;
-        try{
 
+        try{
+            offerRepo.findAll();
+        } catch (Exception e){
+            System.out.println("DB not ready / Entities not scanned: " + e.getMessage());
+            return;
+        }
+        
+        if (offerRepo.count() > 0) return;
+        
+        try{
         Offer coupon = new Offer();
         coupon.setOfferClass(OfferClass.COUPON);
         coupon.setCode("WELCOME20");

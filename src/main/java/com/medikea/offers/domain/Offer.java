@@ -21,7 +21,7 @@ public class Offer {
     @Enumerated(EnumType.STRING)
     private OfferType offerType; // PERCENTAGE OR FIXED_AMOUNT
 
-    @Column(nullable = false, precision = 19, scale=2)
+    @Column(nullable = false, name="discount_value", precision = 19, scale=2)
     private BigDecimal value;
 
     private LocalDateTime startDate;
