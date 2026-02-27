@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 
 @Entity
+@Table(name = "offer_usage")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,11 +19,18 @@ public class OfferUsage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private Offer offer;
 
+    @Column(nullable = false)
     private Long userId;
+    
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal discountApplied;
+    
+    @Column(nullable = false)
     private String serviceType;
+    
+    @Column(nullable = false)
     private LocalDateTime usedAt;
 }
