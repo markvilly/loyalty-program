@@ -26,7 +26,16 @@ public class Offer {
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+
+    @Column(name = "usage_limit_per_user")
     private Integer limitPerUsage;
+
+    @Column(name = "max_users")
+    private Integer maxUsers;
+
+    public Integer getMaxUsers(){
+        return maxUsers;
+    }
 
     public Integer getLimit() {
         return limitPerUsage;

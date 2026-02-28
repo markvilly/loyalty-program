@@ -9,11 +9,14 @@ import com.medikea.offers.dto.OfferValidateResponse;
 import com.medikea.offers.repo.OfferRepo;
 import com.medikea.offers.repo.OfferUsageRepo;
 
+import jakarta.transaction.Transactional;
+
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 
 @Service
@@ -75,6 +78,20 @@ public class OfferEngineService {
         }
        }
 
+       if(offer.getMaxUsers() != null){
+        long totalUsed = offerUsageRepo.countByOfferId(offer.getId());
+
+        if(totalUsed >= offer.getMaxUsers()){
+            return new OfferValidateResponse(
+                false,
+                "This coupon has reached its maximum number of uses",
+                BigDecimal.ZERO,
+                req.getOriginalAmount()
+            );
+
+        } 
+       }
+
         // Make sure it's a COUPON type.
         if(offer.getOfferClass() != OfferClass.COUPON){
             return new OfferValidateResponse(
@@ -101,6 +118,28 @@ public class OfferEngineService {
 
 
         return new OfferValidateResponse(true, "Coupon applied successfully", discount, newTotal);
+    }
+
+
+    @Transactional
+    public OfferValidateResponse redeem(OfferValidateRequest req){
+        OfferValidateResponse preview = preview(req);
+
+        if(!preview.isApplied()){
+            return preview;
+        }
+        Offer offer = offerRepo.findByCodeIgnoreCaseAndActiveTrue(req.getCouponCode()).orElseThrow();
+
+        offerUsageRepo.save(new OfferUsage(
+            null,
+            offer,
+            req.getUserId(),
+            preview.getDiscountAmount(),
+            req.getServiceType(),
+            LocalDateTime.now()
+        ));
+
+        return preview;
     }
 
     private boolean isWithinActiveWindow(Offer offer) {

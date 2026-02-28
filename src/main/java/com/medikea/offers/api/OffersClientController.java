@@ -19,4 +19,9 @@ public class OffersClientController {
     public OfferValidateResponse validateOffer(@RequestBody OfferValidateRequest req){
         return offerEngineService.preview(req);
     }
+
+    @PostMapping("/redeem")
+    public OfferValidateResponse redeem(@RequestBody OfferValidateRequest req) {
+        return offerEngineService.redeem(req);
+    }
 }
