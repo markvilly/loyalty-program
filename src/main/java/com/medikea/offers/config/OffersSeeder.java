@@ -41,6 +41,7 @@ public class OffersSeeder implements CommandLineRunner {
         coupon.setActive(true);
         coupon.setEndDate(java.time.LocalDateTime.now().plusDays(30));
         coupon.setLimit(1);
+        coupon.setMaxUsers(2);
 
         offerRepo.save(coupon);
 

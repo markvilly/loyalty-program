@@ -37,6 +37,10 @@ public class Offer {
         return maxUsers;
     }
 
+    public void setMaxUsers(Integer maxUsers){
+        this.maxUsers = maxUsers;
+    }
+
     public Integer getLimit() {
         return limitPerUsage;
     }
